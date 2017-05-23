@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'//添加
 
 android {
     compileSdkVersion 24
@@ -19,6 +20,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -29,3 +33,13 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.0.0-beta1'
     testCompile 'junit:junit:4.12'
 }
+
+publish {
+    userOrg = 'androidkun'
+    groupId = 'com.androidkun'
+    artifactId = 'xversionupdate'
+    publishVersion = '1.0.0'
+    desc = 'A quick update version of the framework for Android.'
+    website = 'https://github.com/AndroidKun/XVersionUpdate'
+}
+

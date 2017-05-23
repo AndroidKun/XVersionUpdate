@@ -156,7 +156,7 @@ public class VersionUpdateService extends Service {
         remoteView.setProgressBar(R.id.progressBar, 100, progress, false);
         DecimalFormat df = new DecimalFormat("#.##");
         remoteView.setTextViewText(R.id.textSize, df.format(b2mbDouble(size)) + "");
-        remoteView.setTextViewText(R.id.textSpeed, speed + "kb");
+        remoteView.setTextViewText(R.id.textSpeed, speed + "kb/s");
         notificationManager.notify(notificationId, builder.build());
     }
 

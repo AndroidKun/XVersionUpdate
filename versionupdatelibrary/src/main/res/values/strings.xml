@@ -4,4 +4,11 @@
     <string name="notification_pagesize">Install package size:</string>
     <string name="notification_speed">Download speed:</string>
     <string name="notification_ticker">Start downloading</string>
+
+    <string name="notifyTitle">Notity</string>
+    <string name="notifyMsg">The current application is missing the necessary permissions.\n\nPlease click\"Setting\"-\"permissions\"-
+        open required permissions。</string>
+    <string name="setting">Setting</string>
+    <string name="cancel">Cancel</string>
+    <string name="sure">Sure</string>
 </resources>
