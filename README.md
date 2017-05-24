@@ -3,7 +3,7 @@
 ![image](http://img.blog.csdn.net/20170523162052660?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYTE1MzM1ODg4Njc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
 ## 1.添加依赖 
    
-   compile 'com.androidkun:xversionupdate:1.0.4'
+     compile 'com.androidkun:xversionupdate:1.0.4'
 
 ## 2.调用APII实现版本更新
    
