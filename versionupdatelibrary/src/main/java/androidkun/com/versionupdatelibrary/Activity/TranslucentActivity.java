@@ -44,7 +44,6 @@ public class TranslucentActivity extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_translucent);
-        Log.w("AAA","onCreate TranslucentActivity");
     }
 
     @Override

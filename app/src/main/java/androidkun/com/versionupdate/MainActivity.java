@@ -18,10 +18,12 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void update(View view){
-        VersionUpdateConfig.getInstance().setContext(MainActivity.this).setDownLoadURL(url)
-                .setNotificationIconRes(R.mipmap.app_icon)
-                .setNotificationSmallIconRes(R.mipmap.app_icon_small)
-                .setNotificationTitle("版本升级Demo")
-                .startDownLoad();
+        VersionUpdateConfig.getInstance()//获取配置实例
+                .setContext(MainActivity.this)//设置上下文
+                .setDownLoadURL(url)//设置文件下载链接
+                .setNotificationIconRes(R.mipmap.app_icon)//设置通知大图标
+                .setNotificationSmallIconRes(R.mipmap.app_icon_small)//设置通知小图标
+                .setNotificationTitle("版本升级Demo")//设置通知标题
+                .startDownLoad();//开始下载
     }
 }

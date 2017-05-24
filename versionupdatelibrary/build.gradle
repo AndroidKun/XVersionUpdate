@@ -38,7 +38,7 @@ publish {
     userOrg = 'androidkun'
     groupId = 'com.androidkun'
     artifactId = 'xversionupdate'
-    publishVersion = '1.0.0'
+    publishVersion = '1.0.4'
     desc = 'A quick update version of the framework for Android.'
     website = 'https://github.com/AndroidKun/XVersionUpdate'
 }

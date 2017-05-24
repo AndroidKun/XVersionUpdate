@@ -8,6 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -17,6 +19,7 @@ import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -52,6 +55,15 @@ public class VersionUpdateService extends Service {
     private DownLoadBroadcastReceiver receiver;
 
     private FileBean curFileBean;
+    /**
+     * 网络状态
+     */
+    private boolean netWorkStatus;
+
+    /**
+     * 手动暂停下载
+     */
+    private boolean isUserPause;
 
     @Override
     public void onCreate() {
@@ -63,12 +75,14 @@ public class VersionUpdateService extends Service {
         intentFilter.addAction(Config.ACTION_FININSHED);
         intentFilter.addAction(Config.ACTION_PAUSE);
         intentFilter.addAction(BUTTON_ACTION);
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(receiver, intentFilter);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction().equals(ACTION_START)) {
+            isDownLoading = true;
             Log.w("CCC", "ACTION_START");
             FileBean fileBean = (FileBean) intent.getSerializableExtra("FileBean");
             curFileBean = fileBean;
@@ -189,6 +203,7 @@ public class VersionUpdateService extends Service {
                 FileBean fileBean = (FileBean) intent.getSerializableExtra("FileBean");
                 installPage(fileBean);
                 cancleNotification();
+                curFileBean = null;
             } else if (action.equals(Config.ACTION_REFRESH)) {
                 FileBean fileBean = (FileBean) intent.getSerializableExtra("FileBean");
                 int progress = fileBean.getFinished() * 100 / fileBean.getLength();
@@ -202,16 +217,50 @@ public class VersionUpdateService extends Service {
                 int progress = fileBean.getFinished() * 100 / fileBean.getLength();
                 updataNofication(progress, fileBean.getLength(), "0");
             } else if (action.equals(BUTTON_ACTION)) {
+                if(!netWorkStatus){
+                    Toast.makeText(context,"请检查网络",Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (isDownLoading) {
+                    isUserPause = true;
                     Intent startIntent = new Intent(context, VersionUpdateService.class);
                     startIntent.setAction(VersionUpdateService.ACTION_PAUSE);
                     startIntent.putExtra("FileBean", curFileBean);
                     startService(startIntent);
                 } else {
+                    isUserPause = false;
                     Intent startIntent = new Intent(context, VersionUpdateService.class);
                     startIntent.setAction(VersionUpdateService.ACTION_START);
                     startIntent.putExtra("FileBean", curFileBean);
                     startService(startIntent);
+                }
+            }else{
+                if(curFileBean == null) return;
+                ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo mobNetInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+                NetworkInfo wifiNetInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+                if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
+                    //网络连接已断开
+                    netWorkStatus = false;
+                    Log.w("AAA","网络连接已断开");
+                    if(!isDownLoading) return;
+                    Log.w("AAA","暂停下载");
+                    Intent startIntent = new Intent(context, VersionUpdateService.class);
+                    startIntent.setAction(VersionUpdateService.ACTION_PAUSE);
+                    startIntent.putExtra("FileBean", curFileBean);
+                    startService(startIntent);
+                } else {
+                    netWorkStatus = true;
+                    //网络连接已连接
+                    Log.w("AAA","网络连接已连接");
+                    if(isDownLoading || isUserPause) return;
+                    Log.w("AAA","恢复下载");
+                    Intent startIntent = new Intent(context, VersionUpdateService.class);
+                    startIntent.setAction(VersionUpdateService.ACTION_START);
+                    startIntent.putExtra("FileBean", curFileBean);
+                    startService(startIntent);
+
                 }
             }
         }
@@ -232,7 +281,7 @@ public class VersionUpdateService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             install.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             Log.w("CCC","pageName"+getPackageName());
-            Uri contentUri = FileProvider.getUriForFile(this, "androidkun.com.versionupdatelibrary.fileprovider", file);
+            Uri contentUri = FileProvider.getUriForFile(this, getPackageName()+".fileprovider", file);
             install.setDataAndType(contentUri, "application/vnd.android.package-archive");
         } else {
             install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
