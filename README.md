@@ -3,13 +3,14 @@
 ![image](http://img.blog.csdn.net/20170523162052660?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYTE1MzM1ODg4Njc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
 ## 1.添加依赖 
    
-     compile 'com.androidkun:xversionupdate:1.0.4'
+     compile 'com.androidkun:xversionupdate:1.0.5'
 
 ## 2.调用APII实现版本更新
    
       VersionUpdateConfig.getInstance()//获取配置实例
            .setContext(MainActivity.this)//设置上下文
-           .setDownLoadURL(url)//设置文件下载链接
+           .setDownLoadURL(url)//设置文件下载链接 
+           .setNewVersion("1.0.1")//设置即将下载的APK的版本号,避免重复下载
            .setFileSavePath(savePath)//设置文件保存路径（可不设置）
            .setNotificationIconRes(R.mipmap.app_icon)//设置通知图标
            .setNotificationSmallIconRes(R.mipmap.app_icon_small)//设置通知小图标
