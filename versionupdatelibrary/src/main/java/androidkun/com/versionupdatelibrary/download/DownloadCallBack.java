@@ -16,6 +16,11 @@ public interface DownloadCallBack {
      */
     void pauseCallBack(ThreadBean threadBean);
     /**
+     * 停止下载回调
+     * @param threadBean
+     */
+    void closeCallBack(ThreadBean threadBean);
+    /**
      * 下载进度
      * @param length
      */

@@ -74,7 +74,10 @@ public class VersionUpdateService extends Service {
         intentFilter.addAction(Config.ACTION_REFRESH);
         intentFilter.addAction(Config.ACTION_FININSHED);
         intentFilter.addAction(Config.ACTION_PAUSE);
+        intentFilter.addAction(Config.ACTION_ERROR);
+        intentFilter.addAction(Config.ACTION_CLOSE);
         intentFilter.addAction(BUTTON_ACTION);
+        intentFilter.addAction(BUTTON_CLOSE_ACTION);
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(receiver, intentFilter);
     }
@@ -83,11 +86,11 @@ public class VersionUpdateService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction().equals(ACTION_START)) {
             isDownLoading = true;
-            Log.w("CCC", "ACTION_START");
             FileBean fileBean = (FileBean) intent.getSerializableExtra("FileBean");
             curFileBean = fileBean;
+
             for (DownloadTask downloadTask : downloadTasks) {
-                if (downloadTask.getFileBean().getUrl() == fileBean.getUrl()) {
+                if (downloadTask.getFileBean().getUrl().equals(fileBean.getUrl())) {
                     //如果下载任务中以后该文件的下载任务 则直接返回
                     return super.onStartCommand(intent, flags, startId);
                 }
@@ -97,7 +100,7 @@ public class VersionUpdateService extends Service {
             FileBean fileBean = (FileBean) intent.getSerializableExtra("FileBean");
             DownloadTask pauseTask = null;
             for (DownloadTask downloadTask : downloadTasks) {
-                if (downloadTask.getFileBean().getId() == fileBean.getId()) {
+                if (downloadTask.getFileBean().getUrl().equals(fileBean.getUrl())) {
                     downloadTask.pauseDownload();
                     pauseTask = downloadTask;
                     break;
@@ -105,7 +108,6 @@ public class VersionUpdateService extends Service {
             }
             //将下载任务移除
             downloadTasks.remove(pauseTask);
-            Log.w("CCC", "ACTION_PAUSE");
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -129,6 +131,7 @@ public class VersionUpdateService extends Service {
     private final int notificationId = 100001;
     private boolean isDownLoading = false;
     private final String BUTTON_ACTION = "BUTTON_ACTION";
+    private final String BUTTON_CLOSE_ACTION = "BUTTON_CLOSE_ACTION";
 
     /**
      * 发送通知
@@ -146,6 +149,11 @@ public class VersionUpdateService extends Service {
         Intent buttonAction = new Intent(BUTTON_ACTION);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, buttonAction, PendingIntent.FLAG_UPDATE_CURRENT);
         remoteView.setOnClickPendingIntent(R.id.btn1, pendingIntent);
+
+        Intent closeAction = new Intent(BUTTON_CLOSE_ACTION);
+        PendingIntent closeIntent = PendingIntent.getBroadcast(this, 1, closeAction, PendingIntent.FLAG_UPDATE_CURRENT);
+        remoteView.setOnClickPendingIntent(R.id.btnClose, closeIntent);
+
         builder = new NotificationCompat.Builder(this);
         if(Config.notificaionSmallIconResId == 0) {
             builder.setSmallIcon(R.mipmap.ic_launcher);
@@ -201,22 +209,57 @@ public class VersionUpdateService extends Service {
                 }
             } else if (action.equals(Config.ACTION_FININSHED)) {
                 FileBean fileBean = (FileBean) intent.getSerializableExtra("FileBean");
+                DownloadTask task = null;
+                for (DownloadTask downloadTask : downloadTasks) {
+                    if(downloadTask.getFileBean().getUrl().equals(fileBean.getUrl())){
+                        task = downloadTask;
+                        break;
+                    }
+                }
+                if(task!=null){
+                    downloadTasks.remove(task);
+                }
                 installPage(fileBean);
                 cancleNotification();
                 curFileBean = null;
             } else if (action.equals(Config.ACTION_REFRESH)) {
                 FileBean fileBean = (FileBean) intent.getSerializableExtra("FileBean");
-                int progress = fileBean.getFinished() * 100 / fileBean.getLength();
-                int speed = intent.getIntExtra("Speed", 0);
                 DecimalFormat df = new DecimalFormat("#.##");
+                int progress = (int) (fileBean.getFinished() * 1.0f / fileBean.getLength() * 1.0f*100);
+                int speed = intent.getIntExtra("Speed", 0);
                 String format = df.format(speed * 1.0 / 1024);
                 updataNofication(progress, fileBean.getLength(), format);
             } else if (action.equals(Config.ACTION_PAUSE)) {
                 isDownLoading = false;
                 FileBean fileBean = (FileBean) intent.getSerializableExtra("FileBean");
-                int progress = fileBean.getFinished() * 100 / fileBean.getLength();
+                int progress = (int) (fileBean.getFinished() * 1.0f / fileBean.getLength() * 1.0f*100);
                 updataNofication(progress, fileBean.getLength(), "0");
-            } else if (action.equals(BUTTON_ACTION)) {
+            }else if(action.equals(BUTTON_CLOSE_ACTION)){//点击取消下载按钮
+                if(curFileBean!=null){
+                    File file = new File(Config.downLoadPath,curFileBean.getFileName());
+                    DownloadTask task = null;
+                    for (DownloadTask downloadTask : downloadTasks) {
+                        if(downloadTask.getFileBean().getUrl().equals(curFileBean.getUrl())){
+                            downloadTask.closeDownload();
+                            task = downloadTask;
+                            break;
+                        }
+                    }
+                    if(task!=null){
+                        downloadTasks.remove(task);
+                    }else{
+                        DownloadTask downloadTask = new DownloadTask(VersionUpdateService.this, curFileBean, 3);
+                        downloadTask.closeDownload();
+                    }
+                }
+            }else if(action.equals(Config.ACTION_CLOSE)){//取消下载
+                FileBean fileBean = (FileBean) intent.getSerializableExtra("FileBean");
+                File file = new File(Config.downLoadPath,fileBean.getFileName());
+                if(file.exists()){
+                    file.delete();
+                }
+                cancleNotification();
+            }else if (action.equals(BUTTON_ACTION)) {
                 if(!netWorkStatus){
                     Toast.makeText(context,"请检查网络",Toast.LENGTH_SHORT).show();
                     return;
@@ -234,6 +277,8 @@ public class VersionUpdateService extends Service {
                     startIntent.putExtra("FileBean", curFileBean);
                     startService(startIntent);
                 }
+            }else if(action.equals(Config.ACTION_ERROR)){
+                Toast.makeText(context, intent.getStringExtra("error"),Toast.LENGTH_SHORT).show();
             }else{
                 if(curFileBean == null) return;
                 ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -243,9 +288,7 @@ public class VersionUpdateService extends Service {
                 if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
                     //网络连接已断开
                     netWorkStatus = false;
-                    Log.w("AAA","网络连接已断开");
                     if(!isDownLoading) return;
-                    Log.w("AAA","暂停下载");
                     Intent startIntent = new Intent(context, VersionUpdateService.class);
                     startIntent.setAction(VersionUpdateService.ACTION_PAUSE);
                     startIntent.putExtra("FileBean", curFileBean);
@@ -253,9 +296,7 @@ public class VersionUpdateService extends Service {
                 } else {
                     netWorkStatus = true;
                     //网络连接已连接
-                    Log.w("AAA","网络连接已连接");
                     if(isDownLoading || isUserPause) return;
-                    Log.w("AAA","恢复下载");
                     Intent startIntent = new Intent(context, VersionUpdateService.class);
                     startIntent.setAction(VersionUpdateService.ACTION_START);
                     startIntent.putExtra("FileBean", curFileBean);
@@ -280,7 +321,6 @@ public class VersionUpdateService extends Service {
         // 调用系统自带安装环境
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             install.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Log.w("CCC","pageName"+getPackageName());
             Uri contentUri = FileProvider.getUriForFile(this, getPackageName()+".fileprovider", file);
             install.setDataAndType(contentUri, "application/vnd.android.package-archive");
         } else {

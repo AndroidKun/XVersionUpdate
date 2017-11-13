@@ -70,9 +70,17 @@
 
     <ImageView
         android:id="@+id/btn1"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:padding="5dp"
         android:src="@mipmap/ic_pause" />
+
+
+    <ImageView
+        android:id="@+id/btnClose"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:padding="5dp"
+        android:src="@mipmap/close" />
 
 </LinearLayout>

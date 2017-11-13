@@ -41,7 +41,15 @@ public class Config {
      */
     public final static String ACTION_FININSHED = "ACTION_FININSHED";
     /**
+     * 取消下载
+     */
+    public final static String ACTION_CLOSE = "ACTION_CLOSE";
+    /**
      * 刷新下载进度
      */
     public final static String ACTION_REFRESH = "ACTION_REFRESH";
+    /**
+     * 下载失败
+     */
+    public final static String ACTION_ERROR = "ACTION_ERROR";
 }

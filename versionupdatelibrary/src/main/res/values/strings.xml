@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">VersionUpdateDemo</string>
     <string name="notification_title">downloading...</string>
-    <string name="notification_pagesize">Install package size:</string>
-    <string name="notification_speed">Download speed:</string>
+    <string name="notification_pagesize">Size:</string>
+    <string name="notification_speed">Speed:</string>
     <string name="notification_ticker">Start downloading</string>
 
     <string name="notifyTitle">Notity</string>
@@ -11,4 +11,5 @@
     <string name="setting">Setting</string>
     <string name="cancel">Cancel</string>
     <string name="sure">Sure</string>
+    <string name="error_url">Download connection invalid</string>
 </resources>

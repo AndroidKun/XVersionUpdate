@@ -14,6 +14,7 @@ public class FileBean implements Serializable{
     private int id;
     private String fileName;
     private String url;
+    private String version;
     private int length;
     private int finished;
 
@@ -51,6 +52,14 @@ public class FileBean implements Serializable{
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     public int getLength() {

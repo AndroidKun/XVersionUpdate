@@ -23,6 +23,7 @@ public class DownloadThread extends Thread {
     private ThreadBean threadBean;
     private DownloadCallBack callback;
     private Boolean isPause = false;
+    private Boolean isClose = false;
 
     public DownloadThread(FileBean fileBean,ThreadBean threadBean, DownloadCallBack callback) {
         this.fileBean = fileBean;
@@ -34,6 +35,9 @@ public class DownloadThread extends Thread {
         isPause = pause;
     }
 
+    public void setClose(boolean close) {
+        isClose = close;
+    }
     @Override
     public void run() {
         HttpURLConnection connection = null;
@@ -63,10 +67,15 @@ public class DownloadThread extends Thread {
                     //保存进度
                     threadBean.setFinished(threadBean.getFinished()+len);
                     //在下载暂停的时候将下载进度保存到数据库
+                    if(isClose){
+                        callback.closeCallBack(threadBean);
+                        return;
+                    }
                     if(isPause){
                         callback.pauseCallBack(threadBean);
                         return;
                     }
+
                 }
                 //下载完成
                 callback.threadDownLoadFinished(threadBean);
@@ -84,4 +93,5 @@ public class DownloadThread extends Thread {
             }
         }
     }
+
 }

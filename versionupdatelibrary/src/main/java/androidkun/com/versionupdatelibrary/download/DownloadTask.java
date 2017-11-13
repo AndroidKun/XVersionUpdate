@@ -94,6 +94,16 @@ public class DownloadTask implements DownloadCallBack {
             }
         }
     }
+    /**
+     * 取消下载
+     */
+    public void closeDownload() {
+        for(DownloadThread downloadThread : downloadThreads){
+            if (downloadThread!=null) {
+                downloadThread.setClose(true);
+            }
+        }
+    }
 
     @Override
     public void pauseCallBack(ThreadBean threadBean) {
@@ -101,6 +111,15 @@ public class DownloadTask implements DownloadCallBack {
         Intent intent = new Intent(Config.ACTION_PAUSE);
         intent.putExtra("FileBean",fileBean);
         context.sendBroadcast(intent);
+    }
+
+    @Override
+    public void closeCallBack(ThreadBean threadBean) {
+        dao.deleteThread(threadBean.getUrl());
+        Intent intent = new Intent(Config.ACTION_CLOSE);
+        intent.putExtra("FileBean",fileBean);
+        context.sendBroadcast(intent);
+
     }
 
     private long curTime = 0;
@@ -149,4 +168,5 @@ public class DownloadTask implements DownloadCallBack {
     public FileBean getFileBean() {
         return fileBean;
     }
+
 }
