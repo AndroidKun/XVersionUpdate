@@ -15,6 +15,10 @@ public class Config {
      */
     public static String notificationTitle ;
     /**
+     * 是否是强制更新 强制更新：1.是，0,否
+     */
+    public static int strongUpdate = 0;
+    /**
      * 通知栏小图标
      */
     public static int notificaionSmallIconResId = 0;

@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'//添加
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 24
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
@@ -21,6 +21,7 @@ android {
         }
     }
     lintOptions {
+        checkReleaseBuilds false
         abortOnError false
     }
 }
@@ -38,7 +39,7 @@ publish {
     userOrg = 'androidkun'
     groupId = 'com.androidkun'
     artifactId = 'xversionupdate'
-    publishVersion = '1.0.5'
+    publishVersion = '1.0.6'
     desc = 'A quick update version of the framework for Android.'
     website = 'https://github.com/AndroidKun/XVersionUpdate'
 }

@@ -52,6 +52,19 @@ public class VersionUpdateConfig {
         Config.downLoadPath = path;
         return config;
     }
+    /**
+     * 设置强制更新
+     * @param strongUpdate 1.是，0,否
+     * @return
+     */
+    public VersionUpdateConfig setStrongUpdate(int strongUpdate) {
+        Config.strongUpdate = strongUpdate;
+        return config;
+    }
+
+    public int getStrongUpdate(){
+        return Config.strongUpdate;
+    }
 
     /**
      * 设置通知标题
@@ -101,6 +114,7 @@ public class VersionUpdateConfig {
         fileBean.setVersion(version);
         return config;
     }
+
 
 
     /**
